@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم - اختبار القرآن</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C8952A; --gold-light: #F0C060; --green-dark: #0D3B2E;
+    --green-mid: #1A5C46; --green-light: #2E8B57; --white: #FFFFFF;
+    --danger: #DC3545; --danger-light: rgba(220,53,69,0.15);
+    --bg-card: rgba(255,255,255,0.05); --border: rgba(200,149,42,0.2);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Cairo',sans-serif; background:linear-gradient(135deg,#0D1B2A 0%,#0D3B2E 100%); min-height:100vh; color:var(--white); }
+  .topbar { background:rgba(0,0,0,0.4); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); padding:14px 30px; display:flex; justify-content:space-between; align-items:center; }
+  .topbar h1 { font-size:1.2rem; color:var(--gold-light); font-weight:700; }
+  .topbar a { color:rgba(255,255,255,0.5); text-decoration:none; font-size:0.85rem; transition:color 0.2s; }
+  .topbar a:hover { color:var(--gold); }
+  .layout { display:grid; grid-template-columns:1fr 2fr; gap:24px; padding:24px 30px; max-width:1400px; margin:0 auto; }
+  .panel { background:var(--bg-card); border:1px solid var(--border); border-radius:18px; padding:24px; }
+  .panel-title { font-size:1rem; font-weight:700; color:var(--gold); margin-bottom:20px; padding-bottom:12px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+  .form-group { margin-bottom:16px; }
+  .form-group label { display:block; font-size:0.82rem; color:rgba(255,255,255,0.6); margin-bottom:6px; }
+  .form-group input, .form-group textarea, .form-group select { width:100%; background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.12); border-radius:10px; padding:10px 14px; color:var(--white); font-family:'Cairo',sans-serif; font-size:0.9rem; outline:none; transition:border-color 0.2s; }
+  .form-group input:focus, .form-group textarea:focus { border-color:var(--gold); }
+  .form-group textarea { resize:vertical; min-height:80px; }
+  .form-group select option { background:#1A3A2A; }
+  .btn-add { width:100%; background:linear-gradient(135deg,var(--gold),#9A6F1A); color:var(--white); border:none; padding:12px; border-radius:10px; font-family:'Cairo',sans-serif; font-weight:700; font-size:0.95rem; cursor:pointer; transition:all 0.2s; }
+  .btn-add:hover { opacity:0.9; transform:translateY(-1px); }
+  .tabs { display:flex; gap:8px; margin-bottom:20px; }
+  .tab-btn { padding:8px 18px; border-radius:8px; border:1.5px solid var(--border); background:transparent; color:rgba(255,255,255,0.6); font-family:'Cairo',sans-serif; font-size:0.85rem; cursor:pointer; transition:all 0.2s; }
+  .tab-btn.active { background:rgba(200,149,42,0.2); border-color:var(--gold); color:var(--gold-light); font-weight:700; }
+  .search-bar { width:100%; background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 14px; color:var(--white); font-family:'Cairo',sans-serif; font-size:0.9rem; outline:none; margin-bottom:16px; transition:border-color 0.2s; }
+  .search-bar:focus { border-color:var(--gold); }
+  .search-bar::placeholder { color:rgba(255,255,255,0.3); }
+  .q-list { max-height:500px; overflow-y:auto; }
+  .q-list::-webkit-scrollbar { width:6px; }
+  .q-list::-webkit-scrollbar-thumb { background:rgba(200,149,42,0.4); border-radius:3px; }
+  .q-item { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; margin-bottom:10px; transition:border-color 0.2s; }
+  .q-item:hover { border-color:rgba(200,149,42,0.3); }
+  .q-item-header { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:8px; }
+  .q-num { background:rgba(200,149,42,0.2); color:var(--gold-light); padding:2px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; flex-shrink:0; }
+  .q-surah { background:rgba(46,139,87,0.2); color:#7FFF9A; padding:2px 10px; border-radius:20px; font-size:0.75rem; flex-shrink:0; }
+  .q-actions { display:flex; gap:6px; }
+  .btn-edit, .btn-del { border:none; border-radius:6px; padding:5px 12px; font-family:'Cairo',sans-serif; font-size:0.78rem; cursor:pointer; }
+  .btn-edit { background:rgba(200,149,42,0.25); color:var(--gold-light); }
+  .btn-del { background:var(--danger-light); color:#FF8A8A; }
+  .q-text { font-size:0.88rem; color:rgba(255,255,255,0.75); line-height:1.7; margin-bottom:8px; }
+  .q-answer { font-size:0.82rem; color:#4CAF50; font-weight:600; }
+  .q-options { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .q-opt { padding:2px 10px; border-radius:6px; font-size:0.78rem; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.6); }
+  .q-opt.is-answer { background:rgba(76,175,80,0.2); color:#4CAF50; font-weight:700; }
+  .results-section { display:none; }
+  table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+  th { background:rgba(200,149,42,0.15); color:var(--gold-light); padding:10px 12px; text-align:right; font-weight:700; border-bottom:1px solid var(--border); }
+  td { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); color:rgba(255,255,255,0.8); }
+  tr:hover td { background:rgba(255,255,255,0.03); }
+  .pct-bar { height:6px; border-radius:3px; background:rgba(255,255,255,0.1); margin-top:4px; }
+  .pct-fill { height:100%; border-radius:3px; }
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:100; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:linear-gradient(135deg,#0D3B2E,#0D1B2A); border:1px solid var(--border); border-radius:20px; padding:28px; width:90%; max-width:580px; max-height:90vh; overflow-y:auto; }
+  .modal-title { font-size:1.1rem; font-weight:700; color:var(--gold-light); margin-bottom:20px; }
+  .modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+  .btn-save { background:linear-gradient(135deg,var(--gold),#9A6F1A); color:var(--white); border:none; padding:10px 28px; border-radius:10px; font-family:'Cairo',sans-serif; font-weight:700; cursor:pointer; }
+  .btn-cancel { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7); border:none; padding:10px 22px; border-radius:10px; font-family:'Cairo',sans-serif; cursor:pointer; }
+  .stat-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px; }
+  .stat-card { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:14px; padding:16px; text-align:center; }
+  .stat-card .s-num { font-size:1.8rem; font-weight:900; color:var(--gold-light); }
+  .stat-card .s-lbl { font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:2px; }
+  .btn-clear-all { background:rgba(220,53,69,0.15); color:#FF8A8A; border:1px solid rgba(220,53,69,0.3); padding:7px 16px; border-radius:8px; font-family:'Cairo',sans-serif; font-size:0.8rem; cursor:pointer; }
+  .notice { font-size:0.78rem; color:rgba(255,255,255,0.35); text-align:center; margin-top:12px; }
+  .spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.2); border-top-color:var(--gold); border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .alert { padding:10px 16px; border-radius:10px; font-size:0.88rem; margin-bottom:14px; display:none; }
+  .alert.success { background:rgba(76,175,80,0.15); border:1px solid rgba(76,175,80,0.3); color:#7FFF9A; }
+  .alert.error { background:rgba(220,53,69,0.15); border:1px solid rgba(220,53,69,0.3); color:#FF8A8A; }
+  @media(max-width:900px){ .layout{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>⚙️ لوحة تحكم — اختبار القرآن الكريم</h1>
+  <a href="index.html">← العودة للموقع</a>
+</div>
+
+<div class="layout">
+
+  <!-- LEFT: ADD FORM -->
+  <div>
+    <div class="panel">
+      <div class="panel-title">➕ إضافة سؤال جديد</div>
+      <div id="addAlert" class="alert"></div>
+      <div class="form-group">
+        <label>اسم السورة</label>
+        <input type="text" id="f-surah" placeholder="مثال: البقرة">
+      </div>
+      <div class="form-group">
+        <label>نص الآية (ضع ___ مكان الكلمة الناقصة)</label>
+        <textarea id="f-ayah" placeholder="مثال: وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ إِلَّا عَلَى ___"></textarea>
+      </div>
+      <div class="form-group">
+        <label>الإجابة الصحيحة</label>
+        <input type="text" id="f-answer" placeholder="الكلمة الصحيحة">
+      </div>
+      <div class="form-group">
+        <label>الخيار 2</label>
+        <input type="text" id="f-opt2" placeholder="خيار متشابه">
+      </div>
+      <div class="form-group">
+        <label>الخيار 3</label>
+        <input type="text" id="f-opt3" placeholder="خيار متشابه">
+      </div>
+      <div class="form-group">
+        <label>الخيار 4</label>
+        <input type="text" id="f-opt4" placeholder="خيار متشابه">
+      </div>
+      <button class="btn-add" onclick="addQuestion()">✅ إضافة السؤال</button>
+      <p class="notice">الأسئلة المضافة تُحفظ في questions.js</p>
+    </div>
+  </div>
+
+  <!-- RIGHT: TABS -->
+  <div>
+    <div class="panel">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('questions',this)">📋 الأسئلة</button>
+        <button class="tab-btn" onclick="switchTab('results',this)">📊 نتائج المختبرين</button>
+      </div>
+
+      <!-- QUESTIONS TAB -->
+      <div id="tab-questions">
+        <input class="search-bar" type="text" placeholder="🔍 ابحث بالسورة أو نص الآية..." oninput="renderQuestions()" id="searchInput">
+        <div style="font-size:0.8rem; color:rgba(255,255,255,0.4); margin-bottom:10px;">
+          إجمالي الأسئلة: <strong id="qTotal" style="color:var(--gold-light)">0</strong>
+        </div>
+        <div class="q-list" id="qList"></div>
+      </div>
+
+      <!-- RESULTS TAB -->
+      <div id="tab-results" class="results-section">
+        <div class="stat-cards">
+          <div class="stat-card"><div class="s-num" id="s-total">—</div><div class="s-lbl">إجمالي المختبرين</div></div>
+          <div class="stat-card"><div class="s-num" id="s-avg">—</div><div class="s-lbl">متوسط الدرجات</div></div>
+          <div class="stat-card"><div class="s-num" id="s-top">—</div><div class="s-lbl">أعلى نتيجة</div></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <span style="font-size:0.85rem; color:rgba(255,255,255,0.5);">سجل المختبرين (محفوظ على السيرفر):</span>
+          <button class="btn-clear-all" onclick="clearResults()">🗑 مسح الكل</button>
+        </div>
+        <div id="resultsLoading" style="text-align:center;padding:20px;color:rgba(255,255,255,0.4);">
+          <span class="spinner"></span> جاري تحميل النتائج...
+        </div>
+        <div style="overflow-x:auto; display:none;" id="resultsTableWrap">
+          <table>
+            <thead><tr><th>#</th><th>الاسم</th><th>النتيجة</th><th>النسبة</th><th>التاريخ</th><th>حذف</th></tr></thead>
+            <tbody id="resultsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-title">✏️ تعديل السؤال</div>
+    <input type="hidden" id="e-index">
+    <div class="form-group"><label>اسم السورة</label><input type="text" id="e-surah"></div>
+    <div class="form-group"><label>نص الآية</label><textarea id="e-ayah"></textarea></div>
+    <div class="form-group"><label>الإجابة الصحيحة</label><input type="text" id="e-answer"></div>
+    <div class="form-group"><label>الخيارات (مفصولة بفاصلة)</label><input type="text" id="e-options"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">إلغاء</button>
+      <button class="btn-save" onclick="saveEdit()">💾 حفظ التعديل</button>
+    </div>
+  </div>
+</div>
+
+<script src="questions.js"></script>
+<script>
+const API_PARTICIPANTS = 'save.php?type=participants';
+const API_QUESTIONS    = 'save.php?type=questions';
+
+// دمج الأسئلة الأصلية مع المضافة محلياً
+let allQuestions = [...questions];
+const custom = JSON.parse(localStorage.getItem('customQuestions') || '[]');
+allQuestions = [...allQuestions, ...custom];
+
+function saveCustom() {
+  const customPart = allQuestions.slice(questions.length);
+  localStorage.setItem('customQuestions', JSON.stringify(customPart));
+  // مزامنة تلقائية مع السيرفر
+  syncQuestionsToServer();
+}
+
+async function syncQuestionsToServer() {
+  try {
+    await fetch(API_QUESTIONS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(allQuestions)
+    });
+  } catch(e) { console.warn('تعذّر مزامنة الأسئلة', e); }
+}
+
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'alert ' + type;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+// ===== ADD =====
+function addQuestion() {
+  const surah = document.getElementById('f-surah').value.trim();
+  const ayah  = document.getElementById('f-ayah').value.trim();
+  const ans   = document.getElementById('f-answer').value.trim();
+  const o2    = document.getElementById('f-opt2').value.trim();
+  const o3    = document.getElementById('f-opt3').value.trim();
+  const o4    = document.getElementById('f-opt4').value.trim();
+  if (!surah||!ayah||!ans||!o2||!o3||!o4) { showAlert('addAlert','يرجى ملء جميع الحقول','error'); return; }
+  if (!ayah.includes('___')) { showAlert('addAlert','يجب أن يحتوي نص الآية على ___','error'); return; }
+  allQuestions.push({ surah, ayah, answer: ans, options: [ans, o2, o3, o4] });
+  saveCustom();
+  ['f-surah','f-ayah','f-answer','f-opt2','f-opt3','f-opt4'].forEach(id => document.getElementById(id).value='');
+  showAlert('addAlert','✅ تمت إضافة السؤال بنجاح','success');
+  renderQuestions();
+}
+
+// ===== RENDER QUESTIONS =====
+function renderQuestions() {
+  const search = document.getElementById('searchInput').value.trim().toLowerCase();
+  const filtered = allQuestions.filter(q => {
+    const text = (q.surah + q.ayah).toLowerCase();
+    return !search || text.includes(search);
+  });
+  document.getElementById('qTotal').textContent = allQuestions.length;
+  const list = document.getElementById('qList');
+  if (filtered.length === 0) {
+    list.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:20px;">لا توجد نتائج</p>';
+    return;
+  }
+  list.innerHTML = filtered.map(q => {
+    const realIdx = allQuestions.indexOf(q);
+    const isBase = realIdx < questions.length;
+    return `<div class="q-item">
+      <div class="q-item-header">
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <span class="q-num">#${realIdx+1}</span>
+          <span class="q-surah">${q.surah}</span>
+          ${!isBase?'<span style="background:rgba(200,149,42,0.15);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:0.7rem;">مضاف</span>':''}
+        </div>
+        <div class="q-actions">
+          <button class="btn-edit" onclick="openEdit(${realIdx})">✏️ تعديل</button>
+          <button class="btn-del" onclick="deleteQ(${realIdx})">🗑</button>
+        </div>
+      </div>
+      <div class="q-text">${q.ayah.replace('___','<span style="color:var(--gold);font-weight:700">[ _____ ]</span>')}</div>
+      <div class="q-answer">✓ الإجابة: ${q.answer}</div>
+      <div class="q-options">${q.options.map(o=>`<span class="q-opt ${o===q.answer?'is-answer':''}">${o}</span>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+function deleteQ(idx) {
+  if (!confirm('هل تريد حذف هذا السؤال؟')) return;
+  allQuestions.splice(idx, 1);
+  saveCustom();
+  renderQuestions();
+}
+
+function openEdit(idx) {
+  const q = allQuestions[idx];
+  document.getElementById('e-index').value = idx;
+  document.getElementById('e-surah').value = q.surah;
+  document.getElementById('e-ayah').value = q.ayah;
+  document.getElementById('e-answer').value = q.answer;
+  document.getElementById('e-options').value = q.options.join('، ');
+  document.getElementById('editModal').classList.add('open');
+}
+function closeModal() { document.getElementById('editModal').classList.remove('open'); }
+function saveEdit() {
+  const idx    = parseInt(document.getElementById('e-index').value);
+  const surah  = document.getElementById('e-surah').value.trim();
+  const ayah   = document.getElementById('e-ayah').value.trim();
+  const answer = document.getElementById('e-answer').value.trim();
+  const opts   = document.getElementById('e-options').value.split(/[،,]/).map(s=>s.trim()).filter(Boolean);
+  if (!surah||!ayah||!answer||opts.length<2) { alert('يرجى ملء جميع الحقول'); return; }
+  allQuestions[idx] = { surah, ayah, answer, options: opts };
+  saveCustom();
+  renderQuestions();
+  closeModal();
+}
+
+// ===== TABS =====
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-questions').style.display = tab==='questions'?'block':'none';
+  const r = document.getElementById('tab-results');
+  r.style.display = tab==='results'?'block':'none';
+  if (tab==='results') renderResults();
+}
+
+// ===== RESULTS FROM SERVER =====
+async function renderResults() {
+  document.getElementById('resultsLoading').style.display = 'block';
+  document.getElementById('resultsTableWrap').style.display = 'none';
+  try {
+    const res = await fetch(API_PARTICIPANTS);
+    const json = await res.json();
+    // save.php يُعيد { records: [...], total, perfect100, avg_pct }
+    const results = json.records || (Array.isArray(json) ? json : []);
+    window._cachedResults = results;
+    document.getElementById('resultsLoading').style.display = 'none';
+    document.getElementById('resultsTableWrap').style.display = 'block';
+    document.getElementById('s-total').textContent = results.length;
+    if (results.length > 0) {
+      const avg = Math.round(results.reduce((s,r)=>s+r.pct,0)/results.length);
+      const top = Math.max(...results.map(r=>r.pct));
+      document.getElementById('s-avg').textContent = avg + '%';
+      document.getElementById('s-top').textContent = top + '%';
+    }
+    const sorted = [...results].sort((a,b)=>b.pct-a.pct);
+    const body = document.getElementById('resultsBody');
+    if (sorted.length === 0) {
+      body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,0.3);padding:20px;">لا توجد نتائج بعد</td></tr>';
+      return;
+    }
+    body.innerHTML = sorted.map((r,i)=>{
+      const color = r.pct>=80?'#4CAF50':r.pct>=60?'#FFC107':'#F44336';
+      const origIdx = results.indexOf(r);
+      return `<tr>
+        <td>${i+1}</td>
+        <td><strong>${r.name}</strong></td>
+        <td>${r.score}/${r.total}</td>
+        <td><span style="font-weight:700;color:${color}">${r.pct}%</span>
+          <div class="pct-bar"><div class="pct-fill" style="width:${r.pct}%;background:${color}"></div></div></td>
+        <td style="color:rgba(255,255,255,0.4)">${r.date||'—'}</td>
+        <td><button onclick="deleteResult(${origIdx})" style="background:rgba(220,53,69,0.2);color:#FF8A8A;border:1px solid rgba(220,53,69,0.4);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:Cairo,sans-serif;font-size:0.78rem;">🗑 حذف</button></td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('resultsLoading').innerHTML = '⚠️ تعذّر الاتصال بالسيرفر';
+  }
+}
+
+async function deleteResult(idx) {
+  const results = window._cachedResults || [];
+  const r = results[idx];
+  if (!r || !confirm(`هل تريد حذف نتيجة "${r.name}"؟`)) return;
+  try {
+    // حذف بالمعرّف إذا متوفر، وإلا إعادة كتابة الملف
+    if (r.id) {
+      const res = await fetch(API_PARTICIPANTS, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: r.id })
+      });
+      const data = await res.json();
+      if (data.success) renderResults();
+    } else {
+      // fallback: إزالة من المصفوفة وإعادة الحفظ الكامل
+      results.splice(idx, 1);
+      const res = await fetch(API_PARTICIPANTS, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      // ثم أعد رفع البيانات المتبقية
+      for (const rec of results) {
+        await fetch(API_PARTICIPANTS, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(rec)
+        });
+      }
+      renderResults();
+    }
+  } catch(e) { alert('تعذّر الحذف'); }
+}
+
+async function clearResults() {
+  if (!confirm('هل تريد مسح جميع النتائج من السيرفر؟')) return;
+  try {
+    await fetch(API_PARTICIPANTS, { method:'DELETE' });
+    renderResults();
+  } catch(e) { alert('تعذّر الحذف'); }
+}
+
+// ===== INIT =====
+renderQuestions();
+</script>
+</body>
+</html>
