@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختبار حفظ القرآن الكريم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C8952A;
+    --gold-light: #F0C060;
+    --gold-dark: #9A6F1A;
+    --green-dark: #0D3B2E;
+    --green-mid: #1A5C46;
+    --green-light: #2E8B57;
+    --green-pale: #E8F5EE;
+    --cream: #FDF8EE;
+    --text-dark: #1A1A2E;
+    --white: #FFFFFF;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: linear-gradient(135deg, var(--green-dark) 0%, #0a2a20 50%, #061a14 100%);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C8952A' fill-opacity='0.04'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .container { max-width: 860px; margin: 0 auto; padding: 20px; }
+
+  /* HEADER */
+  .header { text-align: center; padding: 40px 20px 30px; }
+  .header-ornament { font-size: 2rem; color: var(--gold); letter-spacing: 8px; margin-bottom: 10px; text-shadow: 0 0 20px rgba(200,149,42,0.5); }
+  .header h1 { font-family: 'Amiri', serif; font-size: clamp(1.8rem, 5vw, 2.8rem); color: var(--gold-light); text-shadow: 0 2px 20px rgba(200,149,42,0.4); line-height: 1.4; }
+  .header p { color: rgba(255,255,255,0.65); font-size: 1rem; margin-top: 8px; }
+  .bismillah { font-family: 'Amiri', serif; font-size: 1.5rem; color: var(--gold); margin-bottom: 6px; }
+
+  /* COMMUNITY BAR */
+  .community-bar {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(200,149,42,0.2);
+    border-radius: 16px;
+    padding: 16px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .community-stat { text-align: center; flex: 1; min-width: 120px; }
+  .community-stat .num { font-size: 1.8rem; font-weight: 900; color: var(--gold-light); display: block; }
+  .community-stat .lbl { font-size: 0.78rem; color: rgba(255,255,255,0.6); }
+  .stat-divider { width: 1px; height: 40px; background: rgba(200,149,42,0.3); }
+
+  /* LEADERBOARD */
+  .leaderboard-card {
+    background: linear-gradient(135deg, rgba(200,149,42,0.12), rgba(46,139,87,0.08));
+    border: 1px solid rgba(200,149,42,0.25);
+    border-radius: 18px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .leaderboard-title { font-size: 1.05rem; font-weight: 700; color: var(--gold); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .top-list { list-style: none; }
+  .top-list li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .top-list li:last-child { border-bottom: none; }
+  .rank-badge { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem; flex-shrink: 0; }
+  .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: #333; }
+  .rank-2 { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); color: #333; }
+  .rank-3 { background: linear-gradient(135deg, #CD7F32, #A0522D); color: #fff; }
+  .top-name { flex: 1; color: var(--white); font-weight: 600; font-size: 0.95rem; }
+  .top-score { color: var(--gold-light); font-weight: 700; font-size: 0.95rem; background: rgba(200,149,42,0.15); padding: 3px 10px; border-radius: 20px; }
+
+  /* CARD */
+  .card {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(200,149,42,0.2);
+    border-radius: 24px;
+    padding: 36px;
+    margin-bottom: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: fadeInUp 0.5s ease;
+  }
+  @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+  /* WELCOME */
+  .welcome-section { text-align: center; }
+  .welcome-section h2 { font-family: 'Amiri', serif; font-size: 1.6rem; color: var(--gold-light); margin-bottom: 8px; }
+  .welcome-section p { color: rgba(255,255,255,0.6); margin-bottom: 28px; font-size: 0.95rem; }
+  .input-group { position: relative; margin-bottom: 20px; }
+  .input-group input {
+    width: 100%; padding: 16px 20px;
+    background: rgba(255,255,255,0.07);
+    border: 2px solid rgba(200,149,42,0.3);
+    border-radius: 14px; color: var(--white);
+    font-family: 'Cairo', sans-serif; font-size: 1.1rem;
+    text-align: center; outline: none; transition: all 0.3s;
+  }
+  .input-group input:focus { border-color: var(--gold); background: rgba(200,149,42,0.08); box-shadow: 0 0 0 4px rgba(200,149,42,0.1); }
+  .input-group input::placeholder { color: rgba(255,255,255,0.35); }
+  .btn-start {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: var(--white); border: none; padding: 16px 50px;
+    font-family: 'Cairo', sans-serif; font-size: 1.15rem; font-weight: 700;
+    border-radius: 14px; cursor: pointer; transition: all 0.3s;
+    box-shadow: 0 8px 25px rgba(200,149,42,0.35); letter-spacing: 1px;
+  }
+  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(200,149,42,0.5); }
+
+  /* GREETING */
+  .greeting-section { text-align: center; display: none; }
+  .greeting-section .user-name { font-size: 2rem; font-weight: 900; color: var(--gold-light); margin: 8px 0; }
+  .greeting-section p { color: rgba(255,255,255,0.7); margin-bottom: 20px; font-size: 1rem; }
+  .btn-begin {
+    background: linear-gradient(135deg, var(--green-light), var(--green-mid));
+    color: var(--white); border: none; padding: 14px 44px;
+    font-family: 'Cairo', sans-serif; font-size: 1.1rem; font-weight: 700;
+    border-radius: 14px; cursor: pointer; transition: all 0.3s;
+    box-shadow: 0 8px 25px rgba(46,139,87,0.35);
+  }
+  .btn-begin:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(46,139,87,0.5); }
+
+  /* QUIZ */
+  .quiz-section { display: none; }
+  .progress-bar-wrap { background: rgba(255,255,255,0.1); border-radius: 10px; height: 8px; margin-bottom: 20px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--green-light)); border-radius: 10px; transition: width 0.5s ease; }
+  .quiz-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .surah-badge { background: rgba(200,149,42,0.2); color: var(--gold-light); padding: 7px 20px; border-radius: 20px; font-size: 1.0rem; font-weight: 700; border: 1px solid rgba(200,149,42,0.3); }
+  .q-counter { color: rgba(255,255,255,0.5); font-size: 0.85rem; }
+  .question-text {
+    font-family: 'Amiri', serif;
+    font-size: 1.7rem;
+    color: var(--cream); line-height: 2.2; text-align: center;
+    margin-bottom: 16px; padding: 10px 15px;
+  }
+  .blank { display: inline-block; border-bottom: 3px solid var(--gold); min-width: 80px; color: var(--gold); font-weight: 700; padding: 0 6px; }
+  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  .option-btn {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.12);
+    border-radius: 12px; padding: 8px 14px;
+    font-family: 'Amiri', serif; font-size: 1.7rem;
+    color: var(--cream); cursor: pointer; transition: all 0.25s; text-align: center;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--gold); background: rgba(200,149,42,0.1); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(200,149,42,0.2); }
+  .option-btn.correct { background: rgba(46,139,87,0.25); border-color: #4CAF50; color: #7FFF9A; animation: pulse 0.4s ease; }
+  .option-btn.wrong { background: rgba(220,53,69,0.2); border-color: #DC3545; color: #FF8A8A; animation: shake 0.3s ease; }
+  .option-btn:disabled { cursor: not-allowed; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+  .quiz-footer { display: flex; justify-content: space-between; align-items: center; }
+  .live-score { display: flex; gap: 16px; font-size: 0.9rem; }
+  .score-correct { color: #4CAF50; font-weight: 700; }
+  .score-wrong { color: #DC3545; font-weight: 700; }
+  .btn-next {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: var(--white); border: none; padding: 12px 32px;
+    font-family: 'Cairo', sans-serif; font-size: 1rem; font-weight: 700;
+    border-radius: 12px; cursor: pointer; transition: all 0.3s;
+  }
+  .btn-next:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-next:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(200,149,42,0.4); }
+
+  /* RESULT */
+  .result-section { display: none; text-align: center; }
+  .result-trophy { font-size: 4rem; margin-bottom: 10px; }
+  .result-name { font-size: 1.6rem; font-weight: 900; color: var(--gold-light); margin-bottom: 6px; }
+  .result-score-circle {
+    width: 140px; height: 140px; border-radius: 50%;
+    background: conic-gradient(var(--gold) 0% var(--score-pct, 0%), rgba(255,255,255,0.1) 0%);
+    display: flex; align-items: center; justify-content: center;
+    margin: 24px auto; position: relative;
+  }
+  .result-score-circle::before { content: ''; position: absolute; width: 110px; height: 110px; border-radius: 50%; background: rgba(13,59,46,0.95); }
+  .score-inner { position: relative; z-index: 1; }
+  .score-big { font-size: 2rem; font-weight: 900; color: var(--gold-light); }
+  .score-total { font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+  .result-grade { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+  .result-message { font-size: 1rem; color: rgba(255,255,255,0.75); max-width: 480px; margin: 0 auto 24px; line-height: 1.8; }
+  .result-stats { display: flex; justify-content: center; gap: 24px; margin-bottom: 28px; flex-wrap: wrap; }
+  .r-stat { padding: 14px 24px; border-radius: 14px; min-width: 100px; }
+  .r-stat .r-num { font-size: 1.6rem; font-weight: 900; }
+  .r-stat .r-lbl { font-size: 0.78rem; color: rgba(255,255,255,0.6); }
+  .r-correct { background: rgba(76,175,80,0.15); border: 1px solid rgba(76,175,80,0.3); }
+  .r-correct .r-num { color: #4CAF50; }
+  .r-wrong { background: rgba(220,53,69,0.15); border: 1px solid rgba(220,53,69,0.3); }
+  .r-wrong .r-num { color: #DC3545; }
+  .r-pct { background: rgba(200,149,42,0.15); border: 1px solid rgba(200,149,42,0.3); }
+  .r-pct .r-num { color: var(--gold-light); }
+  .saving-msg { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
+  .btn-retry {
+    background: linear-gradient(135deg, var(--green-light), var(--green-mid));
+    color: var(--white); border: none; padding: 14px 40px;
+    font-family: 'Cairo', sans-serif; font-size: 1.05rem; font-weight: 700;
+    border-radius: 14px; cursor: pointer; transition: all 0.3s;
+    box-shadow: 0 8px 25px rgba(46,139,87,0.3);
+  }
+  .btn-retry:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(46,139,87,0.5); }
+
+  /* LOADING SPINNER */
+  .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-left: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .footer { text-align: center; padding: 24px; color: rgba(255,255,255,0.3); font-size: 0.8rem; }
+  @media (max-width: 600px) {
+    .options-grid { grid-template-columns: 1fr; }
+    .community-bar { flex-direction: column; }
+    .stat-divider { display: none; }
+    .card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+    <h1>اختبر حفظك للقرآن الكريم</h1>
+    <p>بارك الله في وقتك وجعل القرآن ربيع قلبك ونور صدرك. لا تنسَ مشاركة الموقع مع أحبابك ليعم الأجر</p>
+  </div>
+
+  <!-- COMMUNITY STATS -->
+  <div class="community-bar">
+    <div class="community-stat">
+      <span class="num" id="totalTesters">
+        <span class="spinner"></span>
+      </span>
+      <span class="lbl">مختبر شارك حتى الآن</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="community-stat">
+      <span class="num" id="perfect100">
+        <span class="spinner"></span>
+      </span>
+      <span class="lbl">حققوا 100%</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="community-stat">
+      <span class="num">50</span>
+      <span class="lbl">سؤال من مختلف السور</span>
+    </div>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="card">
+
+    <!-- WELCOME -->
+    <div class="welcome-section" id="welcomeSection">
+      <p>أدخل اسمك لبدء اختبار الحفظ</p>
+      <div class="input-group">
+        <input type="text" id="nameInput" placeholder="✍️ أدخل اسمك هنا..." maxlength="40" />
+      </div>
+      <button class="btn-start" onclick="submitName()">ابدأ الاختبار</button>
+    </div>
+
+    <!-- GREETING -->
+    <div class="greeting-section" id="greetingSection">
+      <div style="font-size:1.1rem; color:rgba(255,255,255,0.7);">أهلاً وسهلاً</div>
+      <div class="user-name" id="greetName"></div>
+      <p>جاهز لاختبار حفظك للقرآن الكريم؟<br>الاختبار يتضمن <strong style="color:var(--gold-light)">50 سؤالاً</strong> من مختلف السور</p>
+      <button class="btn-begin" onclick="startQuiz()">🚀 ابدأ الاختبار الآن</button>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="quiz-section" id="quizSection">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+      </div>
+      <div class="quiz-meta">
+        <span class="surah-badge" id="surahBadge">سورة —</span>
+        <span class="q-counter" id="qCounter">السؤال 1 / 50</span>
+      </div>
+      <div class="question-text" id="questionText"></div>
+      <div class="options-grid" id="optionsGrid"></div>
+      <div class="quiz-footer">
+        <div class="live-score">
+          <span class="score-correct">✅ صح: <span id="liveCorrect">0</span></span>
+          <span class="score-wrong">❌ خطأ: <span id="liveWrong">0</span></span>
+        </div>
+        <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>التالي ←</button>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result-section" id="resultSection">
+      <div class="result-trophy" id="resultTrophy">🏆</div>
+      <div style="color:rgba(255,255,255,0.6); font-size:1rem;">أحسنت يا</div>
+      <div class="result-name" id="resultName"></div>
+      <div class="result-score-circle" id="scoreCircle">
+        <div class="score-inner">
+          <div class="score-big" id="scoreNum">0</div>
+          <div class="score-total" id="scoreTotal">/ 50</div>
+        </div>
+      </div>
+      <div class="result-grade" id="resultGrade"></div>
+      <div class="result-message" id="resultMessage"></div>
+      <div class="result-stats">
+        <div class="r-stat r-correct"><div class="r-num" id="resCorrect">0</div><div class="r-lbl">✅ صح</div></div>
+        <div class="r-stat r-wrong"><div class="r-num" id="resWrong">0</div><div class="r-lbl">❌ خطأ</div></div>
+        <div class="r-stat r-pct"><div class="r-num" id="resPct">0%</div><div class="r-lbl">نسبة النجاح</div></div>
+      </div>
+      <div class="saving-msg" id="savingMsg"></div>
+      <button class="btn-retry" onclick="retryQuiz()">🔄 أعد الاختبار</button>
+    </div>
+
+  </div>
+
+  <!-- LEADERBOARD BOTTOM -->
+  <div class="leaderboard-card">
+    <div class="leaderboard-title">🏆 أفضل آخر 10 متنافسين</div>
+    <ul class="top-list" id="topList">
+      <li><span class="rank-badge rank-1">1</span><span class="top-name">جاري التحميل...</span><span class="top-score">—</span></li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <div style="color: rgba(255,255,255,0.9); font-size: 0.95rem; margin-bottom: 10px; font-weight: 600;">هذا الموقع وقفٌ لله تعالى.. ساهم بنشره ليكون لك صدقة جارية في خدمة كتابه</div>
+    ﴿ وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا ﴾ — جميع الحقوق محفوظة
+    <br><span style="color:rgba(255,255,255,0.35); font-size:0.8rem;">برمجة: <a href="/cdn-cgi/l/email-protection#9ee4f7e4a9ada9def9f3fff7f2b0fdf1f3" style="color:rgba(200,149,42,0.6); text-decoration:none;"><span class="__cf_email__" data-cfemail="265c4f5c11151166414b474f4a0845494b">ziz737@gmail.com</span></a></span>
+    <br><a href="index.html" style="color:rgba(200,149,42,0.4); text-decoration:none; font-size:0.75rem;">⚙</a>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="questions.js"></script>
+<script>
+// ===== CONFIG =====
+const API = 'save.php'; // ملف الحفظ الموحّد
+
+let currentUser = '';
+let shuffledQ = [];
+let currentIndex = 0;
+let correct = 0;
+let wrong = 0;
+
+// ===== FETCH RESULTS FROM SERVER =====
+async function loadResults() {
+  try {
+    const res = await fetch(API + '?type=participants');
+    const data = await res.json();
+    // save.php يُعيد { records: [...], total, perfect100, avg_pct }
+    if (data.records) return data.records;
+    return Array.isArray(data) ? data : [];
+  } catch(e) {
+    console.warn('Could not load results:', e);
+    return [];
+  }
+}
+
+// ===== SAVE RESULT TO SERVER =====
+async function saveResultToServer(name, score, total, pct) {
+  document.getElementById('savingMsg').innerHTML = '<span class="spinner"></span> جاري حفظ نتيجتك...';
+  try {
+    const res = await fetch(API + '?type=participants', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, score, total, pct })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('savingMsg').textContent = '✅ تم حفظ نتيجتك بنجاح على السيرفر';
+      updateCommunityStats();
+    }
+  } catch(e) {
+    document.getElementById('savingMsg').textContent = '⚠️ تعذّر الحفظ على السيرفر';
+  }
+}
+
+// ===== COMMUNITY STATS =====
+async function updateCommunityStats() {
+  const results = await loadResults();
+  document.getElementById('totalTesters').textContent = results.length;
+  
+  // حساب عدد الحاصلين على 100%
+  const perfect100Count = results.filter(r => r.pct === 100).length;
+  document.getElementById('perfect100').textContent = perfect100Count;
+
+  updateLeaderboard(results);
+}
+
+function updateLeaderboard(results) {
+  // نرتّب حسب التاريخ (الأحدث أولاً) ثم حسب الدرجة عند تساوي التاريخ، ثم نأخذ آخر 10
+  const last10 = [...results]
+    .sort((a, b) => {
+      const dateDiff = new Date(b.date) - new Date(a.date);
+      if (dateDiff !== 0) return dateDiff;          // الأحدث أولاً
+      return (b.pct - a.pct) || (b.score - a.score); // عند التساوي: الأعلى درجةً أولاً
+    })
+    .slice(0, 10);
+  const list = document.getElementById('topList');
+  if (last10.length === 0) {
+    list.innerHTML = '<li><span class="rank-badge rank-1">1</span><span class="top-name">— كن أول المتنافسين —</span><span class="top-score">—</span></li>';
+    return;
+  }
+  const rankStyle = [
+    'background:linear-gradient(135deg,#FFD700,#FFA500);color:#333',
+    'background:linear-gradient(135deg,#C0C0C0,#A0A0A0);color:#333',
+    'background:linear-gradient(135deg,#CD7F32,#A0522D);color:#fff',
+    'background:linear-gradient(135deg,#6B8E9F,#4A6B7A);color:#fff',
+    'background:linear-gradient(135deg,#7B68AA,#5A4D8A);color:#fff',
+    'background:linear-gradient(135deg,#9B59B6,#8E44AD);color:#fff',
+    'background:linear-gradient(135deg,#3498DB,#2980B9);color:#fff',
+    'background:linear-gradient(135deg,#1ABC9C,#16A085);color:#fff',
+    'background:linear-gradient(135deg,#F39C12,#E67E22);color:#fff',
+    'background:linear-gradient(135deg,#E74C3C,#C0392B);color:#fff'
+  ];
+  list.innerHTML = last10.map((r, i) => `
+    <li>
+      <span class="rank-badge" style="${rankStyle[i]}">${i+1}</span>
+      <span class="top-name">${r.name}</span>
+      <span class="top-score">${r.score}/${r.total} (${r.pct}%)</span>
+    </li>`).join('');
+}
+
+// ===== NAME SUBMIT =====
+function submitName() {
+  const val = document.getElementById('nameInput').value.trim();
+  if (!val) { document.getElementById('nameInput').focus(); return; }
+  currentUser = val;
+  document.getElementById('greetName').textContent = val;
+  document.getElementById('welcomeSection').style.display = 'none';
+  document.getElementById('greetingSection').style.display = 'block';
+}
+document.getElementById('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter') submitName(); });
+
+// ===== START QUIZ =====
+function startQuiz() {
+  shuffledQ = [...questions].sort(() => Math.random() - 0.5).slice(0, 50);
+  currentIndex = 0; correct = 0; wrong = 0;
+  document.getElementById('liveCorrect').textContent = 0;
+  document.getElementById('liveWrong').textContent = 0;
+  document.getElementById('greetingSection').style.display = 'none';
+  document.getElementById('quizSection').style.display = 'block';
+  renderQuestion();
+}
+
+// ===== RENDER QUESTION =====
+function renderQuestion() {
+  const q = shuffledQ[currentIndex];
+  const total = shuffledQ.length;
+  document.getElementById('progressBar').style.width = (currentIndex / total * 100) + '%';
+  document.getElementById('qCounter').textContent = `السؤال ${currentIndex + 1} / ${total}`;
+  document.getElementById('surahBadge').textContent = `سورة ${q.surah}`;
+  const qText = q.ayah.replace('___', '<span class="blank">. . . . .</span>');
+  document.getElementById('questionText').innerHTML = `﴿ ${qText} ﴾`;
+  const opts = [...q.options].sort(() => Math.random() - 0.5);
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = opts.map(opt => `
+    <button class="option-btn" onclick="checkAnswer(this,'${opt.replace(/'/g,"\'")}','${q.answer.replace(/'/g,"\'")}')">
+      ${opt}
+    </button>`).join('');
+  document.getElementById('nextBtn').disabled = true;
+}
+
+// ===== CHECK ANSWER =====
+function checkAnswer(btn, selected, correct_answer) {
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+  if (selected === correct_answer) {
+    btn.classList.add('correct');
+    correct++;
+    document.getElementById('liveCorrect').textContent = correct;
+  } else {
+    btn.classList.add('wrong');
+    wrong++;
+    document.getElementById('liveWrong').textContent = wrong;
+    document.querySelectorAll('.option-btn').forEach(b => {
+      if (b.textContent.trim() === correct_answer) b.classList.add('correct');
+    });
+  }
+  document.getElementById('nextBtn').disabled = false;
+}
+
+// ===== NEXT =====
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex >= shuffledQ.length) showResult();
+  else renderQuestion();
+}
+
+// ===== SHOW RESULT =====
+function showResult() {
+  document.getElementById('quizSection').style.display = 'none';
+  const total = shuffledQ.length;
+  const pct = Math.round(correct / total * 100);
+
+  document.getElementById('resultName').textContent = currentUser;
+  document.getElementById('scoreNum').textContent = correct;
+  document.getElementById('scoreTotal').textContent = `/ ${total}`;
+  document.getElementById('resCorrect').textContent = correct;
+  document.getElementById('resWrong').textContent = wrong;
+  document.getElementById('resPct').textContent = pct + '%';
+  document.getElementById('scoreCircle').style.setProperty('--score-pct', pct + '%');
+
+  let trophy, grade, msg, gradeColor;
+  if (pct === 100)      { trophy='🌟'; grade='حافظ ممتاز';     gradeColor='#FFD700'; msg='ما شاء الله! إجابات صحيحة بالكامل! أنتَ من خيرة حفّاظ كتاب الله، نسأل الله أن يثبّتك ويرفع درجتك.'; }
+  else if (pct >= 90)   { trophy='🏆'; grade='ممتاز جداً';     gradeColor='#FFD700'; msg='أحسنت أيما إحسان! حفظك متين وقوي، استمر في المراجعة لتحافظ على هذا المستوى الرائع.'; }
+  else if (pct >= 80)   { trophy='🥇'; grade='ممتاز';           gradeColor='#4CAF50'; msg='نتيجة رائعة! أنت في مستوى متقدم، بمزيد من المراجعة ستصل إلى القمة بإذن الله.'; }
+  else if (pct >= 70)   { trophy='🥈'; grade='جيد جداً';       gradeColor='#8BC34A'; msg='نتيجة جيدة جداً! أنت على الطريق الصحيح، خصّص وقتاً يومياً للمراجعة وستتحسّن نتيجتك.'; }
+  else if (pct >= 60)   { trophy='🥉'; grade='جيد';             gradeColor='#FFC107'; msg='لا بأس! لديك قاعدة جيدة، ركّز على المقاطع التي أخطأت فيها وراجعها مع التفسير.'; }
+  else if (pct >= 50)   { trophy='📖'; grade='مقبول';           gradeColor='#FF9800'; msg='بداية موفقة! القرآن الكريم يحتاج مراجعة مستمرة. ضع لنفسك جدولاً يومياً للحفظ والمراجعة.'; }
+  else                   { trophy='💪'; grade='تحتاج مراجعة';  gradeColor='#F44336'; msg='لا تيأس! الله يأجرك على كل حرف تتلوه. ابدأ بمراجعة جزء عمّ ثم تقدّم تدريجياً، وستلاحظ الفرق.'; }
+
+  document.getElementById('resultTrophy').textContent = trophy;
+  document.getElementById('resultGrade').textContent = grade;
+  document.getElementById('resultGrade').style.color = gradeColor;
+  document.getElementById('resultMessage').textContent = msg;
+  document.getElementById('resultSection').style.display = 'block';
+
+  // Save to server
+  saveResultToServer(currentUser, correct, total, pct);
+}
+
+// ===== RETRY =====
+function retryQuiz() {
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('welcomeSection').style.display = 'block';
+  document.getElementById('nameInput').value = '';
+}
+
+// ===== INIT =====
+updateCommunityStats();
+</script>
+</body>
+</html>
